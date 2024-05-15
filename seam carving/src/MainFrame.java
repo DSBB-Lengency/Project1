@@ -33,6 +33,9 @@ public class MainFrame extends JFrame {
         addPanel(menu);
         addHint(menu);
         addRelativeSize(menu);
+        addProtect(menu);
+        addEliminate(menu);
+        addDirection(menu);
 
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
 
@@ -124,6 +127,56 @@ public class MainFrame extends JFrame {
     //设置鼠标监听器
 
 
-    //设置保护或消除图片区域
+    //设置保护或消除按钮
+    private void addProtect(JPanel menu){
+        JButton protect=new JButton("Protect Mode");
+        protect.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
 
+            }
+        });
+        menu.add(protect);
+    }
+    private void addEliminate(JPanel menu){
+        JButton eliminate=new JButton("Protect Mode");
+        eliminate.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+            }
+        });
+        menu.add(eliminate);
+    }
+    //设置操作方向
+    private void addDirection(JPanel menu){
+        JRadioButton ho=new JRadioButton("Horizontal");
+        ho.setSelected(true);
+        ho.setBounds(20,30,75,22);
+        ho.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(ho.isSelected()){
+
+                }
+            }
+        });
+        JRadioButton ver=new JRadioButton("Vertical");
+        ho.setBounds(20,30,75,22);
+        ho.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(ver.isSelected()){
+
+                }
+            }
+        });
+        menu.add(ho);
+        menu.add(ver);
+
+        ButtonGroup group = new ButtonGroup();
+        group.add(ho);
+        group.add(ver);
+    }
 }
+
