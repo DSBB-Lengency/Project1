@@ -1,3 +1,8 @@
+package src;
+
+import edu.princeton.cs.algs4.Picture;
+import sc.SeamCarver;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.DataFlavor;
@@ -18,17 +23,19 @@ public class MainFrame extends JFrame {
     public int relativeSize;
     public String inputStr;
     private final JLabel TargetImage;
+    private boolean isHorizontal;
     public static final int ICON_SIZE = 30;
     public static String resource_folder = "resource";
+    public SeamCarver seamCarver;
+    private static final JFrame mainframe = new JFrame("Sustech Seam Carver");
 
-    private static final JFrame mainframe=new JFrame("Sustech Seam Carver");
-
-    public MainFrame(){
-
+    public MainFrame(SeamCarver seamCarver) {
+        this.seamCarver = seamCarver;
+        isHorizontal = true;
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JPanel menu=new JPanel();
-        menu.setSize(40,50);
-        this.TargetImage= new JLabel(icon("dragdrop.png",ICON_SIZE/4),JLabel.CENTER);
+        JPanel menu = new JPanel();
+        menu.setSize(40, 50);
+        this.TargetImage = new JLabel(icon("dragdrop.png", ICON_SIZE / 4), JLabel.CENTER);
         panel.add(this.TargetImage);
         addPanel(menu);
         addHint(menu);
@@ -49,47 +56,50 @@ public class MainFrame extends JFrame {
         mainframe.setResizable(false);
         mainframe.setVisible(true);
     }
+
     //加上主题Seam Carver
-    private void addPanel(JPanel menu){
-        JPanel sustech=new JPanel();
-        JLabel icon=new JLabel(icon("icon.png",ICON_SIZE/10),JLabel.CENTER);
+    private void addPanel(JPanel menu) {
+        JPanel sustech = new JPanel();
+        JLabel icon = new JLabel(icon("icon.png", ICON_SIZE / 10), JLabel.CENTER);
         sustech.add(icon);
         menu.add(sustech);
     }
+
     //放入图片的窗口
-    private void addDropPicture(JFrame frame,JPanel menu){
-        this.TargetImage.setDropTarget(new DropTarget(){
-            public synchronized void drop(DropTargetDropEvent evt){
+    private void addDropPicture(JFrame frame, JPanel menu) {
+        this.TargetImage.setDropTarget(new DropTarget() {
+            public synchronized void drop(DropTargetDropEvent evt) {
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
-                    List<File> droppedFiles=(List)evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    File image= droppedFiles.get(0);
+                    List<File> droppedFiles = (List) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    File image = droppedFiles.get(0);
 
 
                     evt.dropComplete(true);
-                }catch (Exception ignored){
+                } catch (Exception ignored) {
                     evt.dropComplete(false);
                 }
             }
         });
     }
 
-    private void addHint(JPanel menu){
-        JLabel jLabel=new JLabel("Enter a multiple(between 0.5 and 1.5) to zoom in or out");
-        jLabel.setSize(3,20);
+    private void addHint(JPanel menu) {
+        JLabel jLabel = new JLabel("Enter a multiple(between 0.5 and 1.5) to zoom in or out");
+        jLabel.setSize(3, 20);
         menu.add(jLabel);
     }
+
     //读入相对大小
-    private void addRelativeSize(JPanel menu){
+    private void addRelativeSize(JPanel menu) {
         JTextField jTextField = new JTextField("");
-        jTextField.setPreferredSize(new Dimension(10,20));
+        jTextField.setPreferredSize(new Dimension(10, 20));
         menu.add(jTextField);
         jTextField.setColumns(0);
         jTextField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent e) {
-                String key="0123456789";
-                if(key.indexOf(e.getKeyChar())<0){
+                String key = "0123456789.";
+                if (key.indexOf(e.getKeyChar()) < 0) {
                     e.consume();//如果不是数字则取消
                 }
             }
@@ -98,22 +108,27 @@ public class MainFrame extends JFrame {
         jTextField.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                inputStr=jTextField.getText();
+                inputStr = jTextField.getText();
+                double multiple = Double.parseDouble(inputStr);
+                Picture picture = seamCarver.resizeTo(isHorizontal, multiple);
+                picture.show();
             }
         });
     }
+
     //弹出数字大小不符的窗口
-    private void invalidNumber(){
-        JFrame jFrame=new JFrame();
-        JLabel label=new JLabel("Invalid number!");
+    private void invalidNumber() {
+        JFrame jFrame = new JFrame();
+        JLabel label = new JLabel("Invalid number!");
         jFrame.add(label);
-        jFrame.setSize(200,100);
+        jFrame.setSize(200, 100);
         jFrame.setLocationRelativeTo(null);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         jFrame.setVisible(true);
     }
+
     private ImageIcon icon(String filename, int... dims) {
-        URL url = getClass().getResource( resource_folder+ "/" + filename);
+        URL url = getClass().getResource(resource_folder + "/" + filename);
         ImageIcon icon = new ImageIcon(Toolkit.getDefaultToolkit().getImage(url));
         int width, height;
         if (dims.length == 0) {
@@ -128,8 +143,8 @@ public class MainFrame extends JFrame {
 
 
     //设置保护或消除按钮
-    private void addProtect(JPanel menu){
-        JButton protect=new JButton("Protect Mode");
+    private void addProtect(JPanel menu) {
+        JButton protect = new JButton("Protect Mode");
         protect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -138,8 +153,9 @@ public class MainFrame extends JFrame {
         });
         menu.add(protect);
     }
-    private void addEliminate(JPanel menu){
-        JButton eliminate=new JButton("Protect Mode");
+
+    private void addEliminate(JPanel menu) {
+        JButton eliminate = new JButton("Protect Mode");
         eliminate.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -148,26 +164,27 @@ public class MainFrame extends JFrame {
         });
         menu.add(eliminate);
     }
+
     //设置操作方向
-    private void addDirection(JPanel menu){
-        JRadioButton ho=new JRadioButton("Horizontal");
+    private void addDirection(JPanel menu) {
+        JRadioButton ho = new JRadioButton("Horizontal");
         ho.setSelected(true);
-        ho.setBounds(20,30,75,22);
+        ho.setBounds(20, 30, 75, 22);
         ho.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(ho.isSelected()){
-
+                if (ho.isSelected()) {
+                    isHorizontal = true;
                 }
             }
         });
-        JRadioButton ver=new JRadioButton("Vertical");
-        ho.setBounds(20,30,75,22);
+        JRadioButton ver = new JRadioButton("Vertical");
+        ho.setBounds(20, 30, 75, 22);
         ho.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(ver.isSelected()){
-
+                if (ver.isSelected()) {
+                    isHorizontal = false;
                 }
             }
         });
@@ -179,4 +196,3 @@ public class MainFrame extends JFrame {
         group.add(ver);
     }
 }
-
