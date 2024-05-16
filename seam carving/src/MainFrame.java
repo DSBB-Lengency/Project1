@@ -20,7 +20,7 @@ import java.util.List;
 
 public class MainFrame extends JFrame {
 
-    public int relativeSize;
+    public String path;
     public String inputStr;
     private final JLabel TargetImage;
     private boolean isHorizontal;
@@ -29,8 +29,7 @@ public class MainFrame extends JFrame {
     public SeamCarver seamCarver;
     private static final JFrame mainframe = new JFrame("Sustech Seam Carver");
 
-    public MainFrame(SeamCarver seamCarver) {
-        this.seamCarver = seamCarver;
+    public MainFrame() {
         isHorizontal = true;
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JPanel menu = new JPanel();
@@ -43,6 +42,7 @@ public class MainFrame extends JFrame {
         addProtect(menu);
         addEliminate(menu);
         addDirection(menu);
+        addDropPicture(mainframe,menu);
 
         menu.setLayout(new BoxLayout(menu, BoxLayout.Y_AXIS));
 
@@ -73,8 +73,9 @@ public class MainFrame extends JFrame {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> droppedFiles = (List) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     File image = droppedFiles.get(0);
-
-
+                    path=image.getPath();
+                    Picture picture = new Picture(path);
+                    seamCarver=new SeamCarver(picture);
                     evt.dropComplete(true);
                 } catch (Exception ignored) {
                     evt.dropComplete(false);
