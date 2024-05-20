@@ -22,6 +22,8 @@ import javax.imageio.ImageIO;
 public class DualImageDisplay {
 
     private static SeamCarver seamCarver;
+
+    private static boolean isHorizontal;
     private static BufferedImage leftImage; // 保存左侧图片
 
     public static void main(String[] args) {
@@ -48,7 +50,7 @@ public class DualImageDisplay {
                 try {
                     // 接收拖放的文件
                     event.acceptDrop(DnDConstants.ACTION_COPY);
-                    java.util.List<File> droppedFiles = (java.util.List<File>) event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
+                    List<File> droppedFiles = (List<File>) event.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
 
                     // 读取并显示第一个图片文件
                     if (!droppedFiles.isEmpty()) {
@@ -135,23 +137,34 @@ public class DualImageDisplay {
         ActionListener radioListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JRadioButton source = (JRadioButton) e.getSource();
-                System.out.println(source.getText());
-                String direction = source.getText();
-                if()
+                if (horizontalButton.isSelected()) {
+                    isHorizontal = true;
+                    System.out.println(isHorizontal);
+
+                } else if (verticalButton.isSelected()) {
+                    isHorizontal = false;
+                    System.out.println(isHorizontal);
+                }
             }
         };
 
         horizontalButton.addActionListener(radioListener);
         verticalButton.addActionListener(radioListener);
 
-        // 输入框监听器
+        // 输入框回车监听器
         multipleField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                    double multiple = Double.parseDouble(multipleField.getText());
+                    System.out.println(isHorizontal);
+                    Picture picture = seamCarver.resizeTo(isHorizontal, multiple);
+
+                    JLabel jLabel = picture.getJLabel();
+                    rightLabel.setIcon(jLabel.getIcon());
+
                     System.out.println("Multiple: " + multipleField.getText());
-                    rightLabel.setIcon(null);
+
                 }
             }
         });
