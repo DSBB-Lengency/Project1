@@ -130,12 +130,7 @@ public class DualImageDisplay {
                     Image scaledImage = getScaledImage(image, maxWidth, maxHeight);
                     rightLabel.setIcon(new ImageIcon(scaledImage));
                     rightLabel.setText(null);
-
-                    picture.show();
-
-                    JLabel jLabel = picture.getJLabel();
-                    rightLabel.setIcon(jLabel.getIcon());
-
+                    
                     System.out.println("Multiple: " + multipleField.getText());
 
                 }
