@@ -58,7 +58,7 @@ public class DualImageDisplay {
                         BufferedImage image = ImageIO.read(file);
                         if (image != null) {
                             leftImage = image; // 保存原始图像
-                            seamCarver = new SeamCarver(new Picture(image.getWidth(), image.getHeight()));
+                            seamCarver = new SeamCarver(new Picture(file.getPath()));
                             // 对图片进行缩放
                             int maxWidth = 400;
                             int maxHeight = 300;
@@ -80,35 +80,10 @@ public class DualImageDisplay {
 
         // 右侧展示框
         JPanel rightPanel = new JPanel(new BorderLayout());
-        JLabel rightLabel = new JLabel("Image from path", SwingConstants.CENTER);
+        JLabel rightLabel = new JLabel("New image", SwingConstants.CENTER);
         rightLabel.setFont(new Font("Serif", Font.PLAIN, 24));
         rightLabel.setHorizontalAlignment(SwingConstants.CENTER);
         rightLabel.setVerticalAlignment(SwingConstants.CENTER);
-
-        // 指定图片路径
-        String imagePath = "C:\\Users\\86137\\Documents\\WPSDrive\\897125949\\WPS云盘\\sustech\\大二下\\dsaab\\seam-carving-master\\docs\\images\\small.jpg"; // 替换为你的图片路径
-        try {
-            File imageFile = new File(imagePath);
-            if (imageFile.exists()) {
-                BufferedImage image = ImageIO.read(imageFile);
-                if (image != null) {
-                    // 对图片进行缩放
-                    int maxWidth = 400;
-                    int maxHeight = 300;
-                    Image scaledImage = getScaledImage(image, maxWidth, maxHeight);
-                    rightLabel.setIcon(new ImageIcon(scaledImage));
-                    rightLabel.setText(null); // 清除提示文字
-                } else {
-                    rightLabel.setText("Not a valid image file");
-                }
-            } else {
-                rightLabel.setText("Image file not found");
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            rightLabel.setText("Error: " + ex.getMessage());
-        }
-
         rightPanel.add(rightLabel, BorderLayout.CENTER);
 
         // 将左右展示框添加到主面板
@@ -133,32 +108,30 @@ public class DualImageDisplay {
         // 创建输入框
         JTextField multipleField = new JTextField(10);
 
-        // 单选按钮监听器
-        ActionListener radioListener = new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (horizontalButton.isSelected()) {
-                    isHorizontal = true;
-                    System.out.println(isHorizontal);
-
-                } else if (verticalButton.isSelected()) {
-                    isHorizontal = false;
-                    System.out.println(isHorizontal);
-                }
-            }
-        };
-
-        horizontalButton.addActionListener(radioListener);
-        verticalButton.addActionListener(radioListener);
-
         // 输入框回车监听器
         multipleField.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                     double multiple = Double.parseDouble(multipleField.getText());
-                    System.out.println(isHorizontal);
+
+                    if (horizontalButton.isSelected()) {
+                        isHorizontal = true;
+
+                    } else if (verticalButton.isSelected()) {
+                        isHorizontal = false;
+                    }
+
                     Picture picture = seamCarver.resizeTo(isHorizontal, multiple);
+
+                    BufferedImage image=convertPictureToBufferedImage(picture);
+                    int maxWidth = 400;
+                    int maxHeight = 300;
+                    Image scaledImage = getScaledImage(image, maxWidth, maxHeight);
+                    rightLabel.setIcon(new ImageIcon(scaledImage));
+                    rightLabel.setText(null);
+
+                    picture.show();
 
                     JLabel jLabel = picture.getJLabel();
                     rightLabel.setIcon(jLabel.getIcon());
@@ -190,6 +163,21 @@ public class DualImageDisplay {
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
+    }
+
+    public static BufferedImage convertPictureToBufferedImage(Picture picture) {
+        int width = picture.width();
+        int height = picture.height();
+        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Color color = picture.get(x, y);
+                bufferedImage.setRGB(x, y, color.getRGB());
+            }
+        }
+
+        return bufferedImage;
     }
 
     // 显示保护窗口的方法
@@ -226,6 +214,13 @@ public class DualImageDisplay {
             protectFrame.dispose();
             System.out.println("finish");
             System.out.println("Tracked points: " + imagePanel.getPoints());
+            List<Point> points = imagePanel.getPoints();
+            for (Point point : points) {
+                List<Integer> p = new ArrayList<>();
+                p.add((int) point.getX());
+                p.add((int) point.getY());
+                seamCarver.protectedZone.add(p);
+            }
         });
 
         // 将图片展示面板和按钮面板添加到新窗口
