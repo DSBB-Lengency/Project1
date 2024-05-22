@@ -24,6 +24,7 @@ public class DualImageDisplay {
     private static SeamCarver seamCarver;
 
     private static boolean isHorizontal;
+    private static Image scaledImage;
     private static BufferedImage leftImage; // 保存左侧图片
 
     public static void main(String[] args) {
@@ -55,14 +56,14 @@ public class DualImageDisplay {
                     // 读取并显示第一个图片文件
                     if (!droppedFiles.isEmpty()) {
                         File file = droppedFiles.get(0);
-                        BufferedImage image = ImageIO.read(file);
-                        if (image != null) {
-                            leftImage = image; // 保存原始图像
+                        BufferedImage image1 = ImageIO.read(file);
+                        if (image1 != null) {
+                            leftImage = image1; // 保存原始图像
                             seamCarver = new SeamCarver(new Picture(file.getPath()));
                             // 对图片进行缩放
                             int maxWidth = 400;
                             int maxHeight = 300;
-                            Image scaledImage = getScaledImage(image, maxWidth, maxHeight);
+                            scaledImage = getScaledImage(image1, maxWidth, maxHeight);
                             leftLabel.setIcon(new ImageIcon(scaledImage));
                             leftLabel.setText(null); // 清除提示文字
                         } else {
@@ -94,6 +95,7 @@ public class DualImageDisplay {
         JPanel buttonPanel = new JPanel();
 
         JButton protectButton = new JButton("Protect");
+        JButton deleteButton = new JButton("Delete");
 
         // 创建单选按钮和按钮组
         JRadioButton horizontalButton = new JRadioButton("Horizontal");
@@ -124,13 +126,18 @@ public class DualImageDisplay {
 
                     Picture picture = seamCarver.resizeTo(isHorizontal, multiple);
 
-                    BufferedImage image=convertPictureToBufferedImage(picture);
-                    int maxWidth = 400;
-                    int maxHeight = 300;
-                    Image scaledImage = getScaledImage(image, maxWidth, maxHeight);
+                    BufferedImage image2 = convertPictureToBufferedImage(picture);
+                    int maxWidth = 10000;
+                    int maxHeight = 10000;
+                    if (isHorizontal) {
+                        maxHeight = scaledImage.getHeight(null);
+                    } else {
+                        maxWidth = scaledImage.getWidth(null);
+                    }
+                    Image scaledImage = getScaledImage(image2, maxWidth, maxHeight);
                     rightLabel.setIcon(new ImageIcon(scaledImage));
                     rightLabel.setText(null);
-                    
+
                     System.out.println("Multiple: " + multipleField.getText());
 
                 }
@@ -139,6 +146,7 @@ public class DualImageDisplay {
 
         // 将按钮和单选按钮及输入框添加到按钮面板
         buttonPanel.add(protectButton);
+        buttonPanel.add(deleteButton);
         buttonPanel.add(horizontalButton);
         buttonPanel.add(verticalButton);
         buttonPanel.add(new JLabel("Multiple:"));
@@ -146,6 +154,14 @@ public class DualImageDisplay {
 
         // 保护按钮点击事件
         protectButton.addActionListener(e -> {
+            if (leftImage != null) {
+                showProtectWindow(leftImage);
+            } else {
+                JOptionPane.showMessageDialog(frame, "Please drag an image into the left box first.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        deleteButton.addActionListener(e -> {
             if (leftImage != null) {
                 showProtectWindow(leftImage);
             } else {
@@ -221,6 +237,53 @@ public class DualImageDisplay {
         // 将图片展示面板和按钮面板添加到新窗口
         protectFrame.add(buttonPanel, BorderLayout.EAST);
 
+        protectFrame.setVisible(true);
+    }
+
+    private static void showDeleteWindow(BufferedImage image) {
+        // 创建新窗口
+        JFrame protectFrame = new JFrame("Delete Mode");
+        protectFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        protectFrame.setLayout(new BorderLayout());
+
+        // 计算新窗口的尺寸
+        int imageHeight = image.getHeight();
+        int imageWidth = image.getWidth();
+        int frameWidth = imageWidth + 100; // 比图片宽度略宽
+
+        protectFrame.setSize(frameWidth, imageHeight + 50); // 添加一些高度来避免遮挡
+
+        // 创建图片展示面板
+        ImagePanel imagePanel = new ImagePanel(image);
+        protectFrame.add(imagePanel, BorderLayout.CENTER);
+
+        // 创建按钮面板
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
+        JButton withdrawButton = new JButton("Withdraw");
+        JButton okButton = new JButton("OK");
+
+        buttonPanel.add(withdrawButton);
+        buttonPanel.add(okButton);
+
+        // 按钮点击事件
+        withdrawButton.addActionListener(e -> imagePanel.clearPoints());
+        okButton.addActionListener(e -> {
+            protectFrame.dispose();
+            System.out.println("finish");
+            System.out.println("Tracked points: " + imagePanel.getPoints());
+            List<Point> points = imagePanel.getPoints();
+            for (Point point : points) {
+                List<Integer> p = new ArrayList<>();
+                p.add((int) point.getX());
+                p.add((int) point.getY());
+                seamCarver.deletedZone.add(p);
+            }
+        });
+
+        // 将图片展示面板和按钮面板添加到新窗口
+        protectFrame.add(buttonPanel, BorderLayout.EAST);
         protectFrame.setVisible(true);
     }
 
