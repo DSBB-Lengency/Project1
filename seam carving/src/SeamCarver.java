@@ -14,7 +14,8 @@ public class SeamCarver {
     private Picture pic;
     private int width;
     private int height;
-    private Set<List<Integer>> protectedZone;
+    public Set<List<Integer>> protectedZone;
+    public Set<List<Integer>> deletedZone;
 
 
     //Constructor
@@ -23,6 +24,15 @@ public class SeamCarver {
         width = pic.width();
         height = pic.height();
         protectedZone = new HashSet<>();
+        deletedZone = new HashSet<>();
+//        for(int i = 0;i<13;i++){
+//            for(int j = 0; j<18;j++){
+//                List<Integer> point = new ArrayList<>();
+//                point.add(i+23);
+//                point.add(j+160);
+//                deletedZone.add(point);
+//            }
+//        }
     }
 
 
@@ -60,14 +70,18 @@ public class SeamCarver {
         y2 = pic.get(x, y + 1);
         deltaX = Math.pow((x1.getRed() - x2.getRed()), 2) + Math.pow((x1.getGreen() - x2.getGreen()), 2) + Math.pow((x1.getBlue() - x2.getBlue()), 2);
         deltaY = Math.pow((y1.getRed() - y2.getRed()), 2) + Math.pow((y1.getGreen() - y2.getGreen()), 2) + Math.pow((y1.getBlue() - y2.getBlue()), 2);
-        List<Integer> point = new ArrayList<>();
-        point.add(x);
-        point.add(y);
-        if (protectedZone.contains(point)) {
-            return 100000 * (deltaX + deltaY);
-        } else {
-            return deltaX + deltaY;
+        if (!protectedZone.isEmpty() || !deletedZone.isEmpty()) {
+            List<Integer> point = new ArrayList<>();
+            point.add(x);
+            point.add(y);
+            if (protectedZone.contains(point))
+                return 100000;
+            else if (deletedZone.contains(point))
+                return 0;
+            else
+                return deltaX + deltaY;
         }
+        return deltaX + deltaY;
     }
 
 //    public static boolean containsArray(ArrayList<int[]> arrayList, int[] targetArray) {
@@ -372,14 +386,14 @@ public class SeamCarver {
                     this.removeVerticalSeam(seam);
                 }
             } else {
-                System.out.println("Current width = "+this.width);
+                System.out.println("Current width = " + this.width);
                 this.insertVerticalSeams(multiple);
             }
         }
         // Resize the height; remove horizontal seams.
         else {
             double dimension = this.height * multiple;
-            if (this.width() > dimension) {
+            if (this.height() > dimension) {
                 while (this.height() > dimension) {
                     System.out.println("resizing... Currently at height " +
                             this.height());
@@ -387,12 +401,13 @@ public class SeamCarver {
                     this.removeHorizontalSeam(seam);
                 }
             } else {
-                System.out.println("Current height = "+this.height);
+                System.out.println("Current height = " + this.height);
                 this.insertHorizontalSeams(multiple);
             }
         }
         // Return the resized image.
         return this.picture();
+
     }
 
 }
