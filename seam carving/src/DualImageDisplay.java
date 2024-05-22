@@ -163,7 +163,7 @@ public class DualImageDisplay {
 
         deleteButton.addActionListener(e -> {
             if (leftImage != null) {
-                showProtectWindow(leftImage);
+                showDeleteWindow(leftImage);
             } else {
                 JOptionPane.showMessageDialog(frame, "Please drag an image into the left box first.", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -187,7 +187,6 @@ public class DualImageDisplay {
                 bufferedImage.setRGB(x, y, color.getRGB());
             }
         }
-
         return bufferedImage;
     }
 
