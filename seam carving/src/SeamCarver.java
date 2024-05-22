@@ -24,14 +24,6 @@ public class SeamCarver {
         height = pic.height();
         protectedZone = new HashSet<>();
         deletedZone = new HashSet<>();
-//        for(int i = 0;i<13;i++){
-//            for(int j = 0; j<18;j++){
-//                List<Integer> point = new ArrayList<>();
-//                point.add(i+23);
-//                point.add(j+160);
-//                deletedZone.add(point);
-//            }
-//        }
     }
 
 
@@ -69,17 +61,27 @@ public class SeamCarver {
         y2 = pic.get(x, y + 1);
         deltaX = Math.pow((x1.getRed() - x2.getRed()), 2) + Math.pow((x1.getGreen() - x2.getGreen()), 2) + Math.pow((x1.getBlue() - x2.getBlue()), 2);
         deltaY = Math.pow((y1.getRed() - y2.getRed()), 2) + Math.pow((y1.getGreen() - y2.getGreen()), 2) + Math.pow((y1.getBlue() - y2.getBlue()), 2);
-        if (!protectedZone.isEmpty() || !deletedZone.isEmpty()) {
+
+        if (!protectedZone.isEmpty()) {
             List<Integer> point = new ArrayList<>();
             point.add(x);
             point.add(y);
             if (protectedZone.contains(point))
                 return 100000;
-            else if (deletedZone.contains(point))
+            else
+                return deltaX + deltaY;
+        }
+
+        if (!deletedZone.isEmpty()) {
+            List<Integer> point = new ArrayList<>();
+            point.add(x);
+            point.add(y);
+            if (deletedZone.contains(point))
                 return -100000;
             else
                 return deltaX + deltaY;
         }
+
         return deltaX + deltaY;
     }
 
