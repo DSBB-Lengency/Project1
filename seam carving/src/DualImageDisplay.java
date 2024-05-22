@@ -311,12 +311,19 @@ public class DualImageDisplay {
         }
 
         private void addPoint(MouseEvent e) {
-            Point imagePoint = getImageRelativePoint(e.getPoint());
-            if (imagePoint != null) {
-                points.add(imagePoint);
-                System.out.println("Mouse dragged at image coordinates: " + imagePoint);
-                repaint();
+            int eX = (int) e.getPoint().getX();
+            int eY = (int) e.getPoint().getY();
+            for(int i = -2; i<=2;i++){
+                for(int j = -2;j<=2;j++){
+                    Point imagePoint = getImageRelativePoint(new Point(eX+i,eY+j));
+                    if (imagePoint != null) {
+                        points.add(imagePoint);
+                        System.out.println("Mouse dragged at image coordinates: " + imagePoint);
+                        repaint();
+                    }
+                }
             }
+
         }
 
         private Point getImageRelativePoint(Point mousePoint) {
