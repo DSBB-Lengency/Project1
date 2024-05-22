@@ -221,7 +221,12 @@ public class SeamCarver {
             }
         height--;
         pic = new Picture(newPic);
-        updateProtectedZoneAfterHorizontalRemoval(seam);
+        if (!protectedZone.isEmpty()) {
+            updateProtectedZoneAfterHorizontalRemoval(seam);
+        }
+        if (!deletedZone.isEmpty()) {
+            updateDeletedZoneAfterHorizontalRemoval(seam);
+        }
     }
 
     private void updateProtectedZoneAfterHorizontalRemoval(int[] seam) {
@@ -243,6 +248,27 @@ public class SeamCarver {
         }
         protectedZone = updatedProtectedZone;
     }
+
+    private void updateDeletedZoneAfterHorizontalRemoval(int[] seam) {
+        Set<List<Integer>> updatedProtectedZone = new HashSet<>();
+        for (List<Integer> point : deletedZone) {
+            int x = point.get(0), y = point.get(1);
+            for (int i = 0; i < seam.length; i++) {
+                if (x == i) {
+                    if (y < seam[i]) {
+                        List<Integer> updatedPoint = new ArrayList<>(Arrays.asList(x, y));
+                        updatedProtectedZone.add(updatedPoint);
+                    } else if (y > seam[i]) {
+                        y -= 1;
+                        List<Integer> updatedPoint = new ArrayList<>(Arrays.asList(x, y));
+                        updatedProtectedZone.add(updatedPoint);
+                    }
+                }
+            }
+        }
+        deletedZone = updatedProtectedZone;
+    }
+
 
     public void addHorizontalSeam(int[] seam) {
         if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > width() || !isValidSeam(seam))
@@ -303,7 +329,12 @@ public class SeamCarver {
 
         width--;
         pic = new Picture(newPic);
-        updateProtectedZoneAfterVerticalRemoval(seam);
+        if (!protectedZone.isEmpty()) {
+            updateProtectedZoneAfterVerticalRemoval(seam);
+        }
+        if (!deletedZone.isEmpty()) {
+            updateDeletedZoneAfterVerticalRemoval(seam);
+        }
     }
 
     private void updateProtectedZoneAfterVerticalRemoval(int[] seam) {
@@ -324,6 +355,26 @@ public class SeamCarver {
             }
         }
         protectedZone = new HashSet<>(updatedProtectedZone);
+    }
+
+    private void updateDeletedZoneAfterVerticalRemoval(int[] seam) {
+        Set<List<Integer>> updatedProtectedZone = new HashSet<>();
+        for (List<Integer> point : deletedZone) {
+            int x = point.get(0), y = point.get(1);
+            for (int i = 0; i < seam.length; i++) {
+                if (y == i) {
+                    if (x < seam[i]) {
+                        List<Integer> updatedPoint = new ArrayList<>(Arrays.asList(x, y));
+                        updatedProtectedZone.add(updatedPoint);
+                    } else if (x > seam[i]) {
+                        x -= 1;
+                        List<Integer> updatedPoint = new ArrayList<>(Arrays.asList(x, y));
+                        updatedProtectedZone.add(updatedPoint);
+                    }
+                }
+            }
+        }
+        deletedZone = new HashSet<>(updatedProtectedZone);
     }
 
     public void addVerticalSeam(int[] seam) {
