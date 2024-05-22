@@ -1,5 +1,4 @@
 package sc;
-
 import java.awt.Color;
 import java.lang.IllegalArgumentException;
 import java.lang.IndexOutOfBoundsException;
@@ -196,18 +195,18 @@ public class SeamCarver {
         return getSeam(mode, edgeTo, end);
     }
 
-    private boolean isValidSeam(int[] seam) {
-        for (int i = 0; i < seam.length - 1; i++) {
-            if (Math.abs(seam[i] - seam[i + 1]) > 1) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    private boolean isValidSeam(int[] seam) {
+//        for (int i = 0; i < seam.length - 1; i++) {
+//            if (Math.abs(seam[i] - seam[i + 1]) > 1) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     // Removes horizontal seam from picture.
     public void removeHorizontalSeam(int[] seam) {
-        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > width() || !isValidSeam(seam))
+        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > width() )
             throw new IllegalArgumentException();
 
         Picture newPic = new Picture(width(), height() - 1);
@@ -273,7 +272,7 @@ public class SeamCarver {
 
 
     public void addHorizontalSeam(int[] seam) {
-        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > width() || !isValidSeam(seam))
+        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > width() )
             throw new IllegalArgumentException();
 
         Picture newPic = new Picture(width(), height() + 1);
@@ -315,7 +314,7 @@ public class SeamCarver {
 
     // Removes vertical seam from picture.
     public void removeVerticalSeam(int[] seam) {
-        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > height() || !isValidSeam(seam))
+        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > height() )
             throw new IllegalArgumentException();
 
         Picture newPic = new Picture(width() - 1, height());
@@ -380,7 +379,7 @@ public class SeamCarver {
     }
 
     public void addVerticalSeam(int[] seam) {
-        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > height() || !isValidSeam(seam))
+        if (width() <= 1 || height() <= 1 || seam.length < 0 || seam.length > height() )
             throw new IllegalArgumentException();
 
         Picture newPic = new Picture(width() + 1, height());
