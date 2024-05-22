@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.imageio.ImageIO;
@@ -26,6 +27,7 @@ public class DualImageDisplay {
     private static boolean isHorizontal;
     private static Image scaledImage;
     private static BufferedImage leftImage; // 保存左侧图片
+    private static Image rightImage; // 保存左侧图片
 
     public static void main(String[] args) {
         // 创建顶层容器
@@ -94,6 +96,7 @@ public class DualImageDisplay {
         // 创建按钮面板
         JPanel buttonPanel = new JPanel();
 
+        JButton downLoadButton = new JButton("Download");
         JButton protectButton = new JButton("Protect");
         JButton deleteButton = new JButton("Delete");
 
@@ -135,7 +138,8 @@ public class DualImageDisplay {
                         maxWidth = scaledImage.getWidth(null);
                     }
                     Image scaledImage = getScaledImage(image2, maxWidth, maxHeight);
-                    rightLabel.setIcon(new ImageIcon(scaledImage));
+                    rightImage =scaledImage;
+                    rightLabel.setIcon(new ImageIcon(rightImage));
                     rightLabel.setText(null);
 
                     System.out.println("Multiple: " + multipleField.getText());
@@ -151,6 +155,26 @@ public class DualImageDisplay {
         buttonPanel.add(verticalButton);
         buttonPanel.add(new JLabel("Multiple:"));
         buttonPanel.add(multipleField);
+        buttonPanel.add(downLoadButton);
+
+        //下载按钮点击事件
+        downLoadButton.addActionListener(e -> {
+            BufferedImage bufferedImage = toBufferedImage(rightImage);
+
+            // 定义要保存的文件路径和文件名
+            String filePath = "C:\\Users\\86137\\Documents\\WPSDrive\\897125949\\WPS云盘\\sustech\\大二下\\dsaab\\seam-carving-master\\docs\\images\\newImage.png";
+
+            // 调用方法保存图像
+            try {
+                saveImage(bufferedImage, filePath);
+                System.out.println("Image saved successfully!");
+            } catch (IOException e1) {
+                System.err.println("Failed to save image: " + e1.getMessage());
+            }
+
+
+        });
+
 
         // 保护按钮点击事件
         protectButton.addActionListener(e -> {
@@ -174,6 +198,26 @@ public class DualImageDisplay {
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         frame.setVisible(true);
+    }
+    // 将 Image 转换为 BufferedImage
+    private static BufferedImage toBufferedImage(Image img) {
+        if (img instanceof BufferedImage) {
+            return (BufferedImage) img;
+        }
+
+        // 创建一个新的 BufferedImage 对象
+        BufferedImage bufferedImage = new BufferedImage(
+                img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+
+        // 将 Image 绘制到 BufferedImage 上
+        bufferedImage.getGraphics().drawImage(img, 0, 0, null);
+        return bufferedImage;
+    }
+
+    // 保存 BufferedImage 到文件
+    private static void saveImage(BufferedImage img, String filePath) throws IOException {
+        File file = new File(filePath);
+        ImageIO.write(img, "png", file); // 这里指定保存为 PNG 格式
     }
 
     public static BufferedImage convertPictureToBufferedImage(Picture picture) {
